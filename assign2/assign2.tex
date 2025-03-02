@@ -1,0 +1,116 @@
+\documentclass[11pt,epsfig]{article}
+\usepackage{hyperref}
+\usepackage{geometry}
+\usepackage{url}
+\newcommand{\cM}{{\cal M}} 
+\newcommand{\cC}{{\cal C}}
+\newcommand{\cK}{{\cal K}} 
+\newcommand{\bZ}{{\bf Z}}
+
+\setlength{\topmargin}{0in}
+\setlength{\leftmargin}{0in}
+\setlength{\textwidth}{6.25in}
+\setlength{\textheight}{9in}
+\setlength{\parindent}{0.2in}
+\setlength{\parskip}{.2in}
+\voffset = -.75in
+\hoffset = -.79in
+%\pagestyle{empty}
+\def\floor#1{\left\lfloor #1\right\rfloor} %  floor and ceiling (from math mode)
+\def\ceil#1{\left\lceil #1\right\rceil} 
+
+\def\ang#1{\langle #1\rangle}	%  angle brackets <...> 
+
+
+ 
+\begin{document}
+\newcommand{\lsp}[1]{\large\renewcommand{\baselinestretch}{#1}\normalsize}
+\lsp{1}
+{\bf 
+\begin{center}
+COMP5631: Cryptography and Security \\
+2025 Spring -- Written Assignment Number 2 \\
+Handed out: on Feb. 21, 2023 \\ 
+Due: on March 9 by 11:30pm. \\ 
+
+\end{center}
+}
+
+\thispagestyle{empty} \pagestyle{empty}
+
+%\noindent{\it Assignments handed in during class will lose marks.
+%              No assignments will be accepted after class. No email 
+%              submission will be accepted.}
+
+\noindent{\it Please upload your solution paper into Canvas by 23:30 on March 9. 
+No email 
+              submission will be accepted.}
+
+\begin{description}
+
+
+\item[Q1.] 
+Please read the transposition  cipher documented in the Appendix of Lecture 2. 
+Then use the example transposition cipher on Slide No. 25 to encrypt the message 
+\texttt{killthem}. Write down the corresponding ciphertext.  \hfill \fbox{10 marks} 
+
+
+\item[Q2.] 
+There are ten pieces of ciphertext in the following URL:  \\
+ \href{https://home.cse.ust.hk/faculty/cding/COMP5631/c685-5.html}{[Click here]} \\
+ Each of them is obtained by encrypting an English article with a simple substitution 
+ cipher. Let $\ell$ denote the last digit in your student ID number, please then choose the 
+ $((\ell +1) \bmod{10})$-th ciphertext and recover the original plaintext. 
+ 
+ 
+ You may write your own computer programs or use the following online software to compute the frequencies of single 
+ letters, digraphs and trigraphs in the ciphertext for you: 
+ \begin{verbatim} 
+ https://www.cryptoclub.org/#vCiphers
+ \end{verbatim} 
+ Please write down certain details of your decryption process. You need to write down your decrypted text (i.e., 
+ the readable text), but do not need to write down the one-to-one function used for encryption.    
+\hfill \fbox{30 marks}
+
+
+\item[Q3.]
+Consider the example cipher on Slide No. 22 of Lecture 3, where $p$ is a prime.  Let 
+$\ell =2$ (i.e., the cipher has two rounds of iteration of the 
+round function $f_h(x)$).  Write down the encryption function $E_k(m)$ and decryption function $D_k(c)$ of this cipher.     \hfill \fbox{20 marks} 
+
+
+\item[Q4.] 
+Given a one-key block cipher $(\cM, \cC, \cK, E_k, D_{k})$, where $\cM=\cC$ and $E_k$ 
+maps an $n$-bit block into an $n$-bit block, we can 
+construct a new one-key block cipher by picking up two keys $k_1$ and $k_2$ for the 
+original cipher to form a key $k=(k_1,k_2)$ for the new block cipher. The 
+encryption and description of the new cipher go as follows: 
+\begin{description}
+\item[Encryption:] $c=E_{k_2}(E_{k_1}(m))$. 
+\item[Decryption:] $m=D_{k_1}(D_{k_2}(c))$.  
+\end{description}
+Thus the new block cipher has the same block length as the original cipher, 
+but its key length doubles that of the original cipher. This is the double 
+encryption introduced in Lecture 5. 
+
+Design a specific one-key cipher and show that double-encryption with 
+this cipher does not increase the security level of the original cipher at all. 
+[Hint: Consider some of the ciphers on some lecture sides.] \hfill \fbox{20 marks}
+
+
+
+\item[Q5.] 
+ Show that the Diffie-Hellman Key Exchange (Agreement) Protocol is insecure with respect to active attacks.    \hfill \fbox{20 marks}
+
+
+
+
+
+
+\end{description} 
+
+
+\end{document}
+
+
+

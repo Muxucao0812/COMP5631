@@ -1,0 +1,377 @@
+\documentclass[11pt,epsfig]{article}
+\usepackage{hyperref}
+\usepackage{amssymb,amsmath,latexsym,amsthm}
+\usepackage{geometry}
+\usepackage{url}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\newcommand{\cM}{{\cal M}} 
+\newcommand{\cC}{{\cal C}}
+\newcommand{\cK}{{\cal K}} 
+\newcommand{\bZ}{{\bf Z}}
+
+\setlength{\topmargin}{0in}
+\setlength{\leftmargin}{0in}
+\setlength{\textwidth}{6.25in}
+\setlength{\textheight}{9in}
+\setlength{\parindent}{0.2in}
+\setlength{\parskip}{.2in}
+\voffset = -.75in
+\hoffset = -.79in
+%\pagestyle{empty}
+\def\floor#1{\left\lfloor #1\right\rfloor} %  floor and ceiling (from math mode)
+\def\ceil#1{\left\lceil #1\right\rceil} 
+
+\def\ang#1{\langle #1\rangle}	%  angle brackets <...> 
+
+ 
+\begin{document}
+\newcommand{\lsp}[1]{\large\renewcommand{\baselinestretch}{#1}\normalsize}
+\lsp{1}
+{\bf 
+\begin{center}
+COMP5631: Cryptography and Security \\
+2025 Spring -- Written Assignment Number 1 \\
+Handed out: on Feb. 4, 2025  \\ 
+Due: on Feb. 18 by 23:30 
+\end{center}
+}
+
+\thispagestyle{empty} \pagestyle{empty}
+
+\noindent{\it Please upload your solution paper into Canvas by 23:30 on Feb. 18. If you have difficulty to solve some of the problems, you can search the Internet and get some textbooks on discrete mathematics and elementary number theory.  Solving  these problems are essential for this course. 
+My lecture slides at https://www.cse.ust.hk/faculty/cding/COMP2711H/ may be helpful. Most of you learnt these topics during your undergraduate study, but you may have forgotten them. The objective of this assignment is to ask you to review them as early as possible.}
+
+\begin{description}
+
+\item[Q1.] 
+Solve the equation $1009 \otimes_{21111} x=2$ to find the unique solution $x \in \mathbb{Z}_{21111}$. Please use the extended Euclidean algorithm to compute the multiplicative inverse of $1009$ modulo $21111$ first, and then solve the equation. You are asked to write down all the details of your computation step by step.    \hfill \fbox{20 marks} 
+\noindent \textbf{Solution:} To solve $1009 \otimes_{21111} x=2$, we can rewrite it as:
+\begin{equation}
+    1009 \cdot x \equiv 2 \pmod{21111}
+    \label{eq:1}
+\end{equation}
+
+Let's solve this step by step:
+
+\begin{enumerate}
+    \item \textbf{Extended Euclidean Algorithm} to find the multiplicative inverse of 1009 modulo 21111:
+        \begin{alignat*}{2}
+            21111 &= 20 \times 1009 + 931 & \quad &\text{(divide)} \\
+            1009 &= 1 \times 931 + 78 & &\text{(divide)} \\
+            931 &= 11 \times 78 + 73 & &\text{(divide)} \\
+            78 &= 1 \times 73 + 5 & &\text{(divide)} \\
+            73 &= 14 \times 5 + 3 & &\text{(divide)} \\
+            5 &= 1 \times 3 + 2 & &\text{(divide)} \\
+            3 &= 1 \times 2 + 1 & &\text{(divide)} \\
+            2 &= 2 \times 1 + 0 & &\text{(terminate)}            
+        \end{alignat*}
+
+    \item \textbf{Back-substitution} to express 1 as a linear combination:
+        \begin{align*}
+            1 &= 3 - 1 \times 2 \\
+            &= 3 - (5 - 3) = 2 \times 3 - 5 \\
+            &= 2(73 - 14 \times 5) - 5 = 2 \times 73 - 29 \times 5 \\
+            &= 2 \times 73 - 29(78 - 73) = 31 \times 73 - 29 \times 78 \\
+            &= 31(931 - 11 \times 78) - 29 \times 78 = 31 \times 931 - 370 \times 78 \\
+            &= 31 \times 931 - 370(1009 - 931) = 401 \times 931 - 370 \times 1009 \\
+            &= 401(21111 - 20 \times 1009) - 370 \times 1009 \\
+            &= 401 \times 21111 - 8390 \times 1009
+        \end{align*}
+
+    \item Therefore, $1009^{-1} \equiv -8390 \equiv 12721 \pmod{21111}$
+
+    \item \textbf{Final solution:} Multiply both sides of equation \ref{eq:1} by 12721:
+    \[
+    x \equiv 2 \times 12721 \equiv 25442 \equiv 4331 \pmod{21111}
+    \]
+
+    \item \textbf{Verification:} We can verify that:
+    \[
+    1009 \times 4331 \equiv 2 \pmod{21111}
+    \]
+\end{enumerate}
+
+Therefore, the unique solution is $x = 4331$ in $\mathbb{Z}_{21111}$.
+
+
+
+\item[Q2.] 
+This problem is about modular arithmetic.   
+\begin{enumerate} 
+\item Let $a$ and $b$ be two integers and $n \geq 2$ be an integer.  Prove that the following equality holds: \hfill (10~marks)  
+\begin{eqnarray*}
+( a + b) \bmod{n}= ((a \bmod{n}) + (b \bmod{n})) \bmod{n}.   
+\end{eqnarray*}
+\textbf{Proof:}
+
+Let's prove this step by step.
+
+1. By the division algorithm, for any integers \(a\) and \(b\), we can write:
+    \[
+    a = q_1n + r_1, \quad \text{where } 0 \leq r_1 < n \text{ and } r_1 = a \bmod{n}
+    \]
+    \[
+    b = q_2n + r_2, \quad \text{where } 0 \leq r_2 < n \text{ and } r_2 = b \bmod{n}
+    \]
+
+2. Adding these equations:
+    \begin{align*}
+    a + b &= (q_1n + r_1) + (q_2n + r_2) \\
+          &= (q_1 + q_2)n + (r_1 + r_2) \\
+          &= kn + (r_1 + r_2), \text{ where } k = q_1 + q_2
+    \end{align*}
+
+3. Therefore:
+    \[
+    (a + b) \bmod{n} = (r_1 + r_2) \bmod{n}
+    \]
+
+4. On the other hand:
+    \begin{align*}
+    ((a \bmod{n}) + (b \bmod{n})) \bmod{n} &= (r_1 + r_2) \bmod{n}
+    \end{align*}
+
+5. Thus:
+    \[
+    (a + b) \bmod{n} = ((a \bmod{n}) + (b \bmod{n})) \bmod{n}
+    \]
+
+The equality is proved. \qed
+
+
+      
+\item Let $a$ and $b$ be two integers and $n \geq 2$ be an integer.  Prove that the following equality holds: \hfill (10~marks)  
+\begin{eqnarray*}
+( a b) \bmod{n}= ((a \bmod{n}) (b \bmod{n})) \bmod{n}.   
+\end{eqnarray*}
+\textbf{Proof:}
+
+Let's prove this step by step.
+
+1. By the division algorithm, for any integers \(a\) and \(b\), we can write:
+    \[
+    a = q_1n + r_1, \quad \text{where } 0 \leq r_1 < n \text{ and } r_1 = a \bmod{n}
+    \]
+    \[
+    b = q_2n + r_2, \quad \text{where } 0 \leq r_2 < n \text{ and } r_2 = b \bmod{n}
+    \]
+
+2. Multiplying these equations:
+    \begin{align*}
+    a \cdot b &= (q_1n + r_1)(q_2n + r_2) \\
+              &= q_1q_2n^2 + (q_1r_2 + q_2r_1)n + r_1r_2 \\
+              &= kn + r_1r_2, \text{ where } k = q_1q_2n + (q_1r_2 + q_2r_1)
+    \end{align*}
+
+3. Therefore:
+    \[
+    (ab) \bmod{n} = (r_1r_2) \bmod{n}
+    \]
+
+4. On the other hand:
+    \begin{align*}
+    ((a \bmod{n})(b \bmod{n})) \bmod{n} &= (r_1r_2) \bmod{n}
+    \end{align*}
+
+5. Thus:
+    \[
+    (ab) \bmod{n} = ((a \bmod{n})(b \bmod{n})) \bmod{n}
+    \]
+
+The equality is proved. \qed
+              
+\end{enumerate} 
+
+
+\item[Q3.] 
+For each positive integer $n$, let $\phi(n)$ be the total number of integers $i$ with $1 \leq i \leq n-1$ and $\gcd(i, n)=1$. 
+This function $\phi(n)$ is called the \emph{Euler totient function}. Prove that 
+$$
+\phi(pq)=(p-1)(q-1) 
+$$ 
+for a pair of distinct primes $p$ and $q$. \hfill \fbox{20 marks} 
+
+\noindent \textbf{Proof:} Let's prove that for distinct primes $p$ and $q$, $\phi(pq) = (p-1)(q-1)$.
+
+1. \textbf{Preliminary Understanding}:
+    For a number $n = pq$ where $p$ and $q$ are distinct primes, $\phi(n)$ counts the positive integers less than $n$ that are coprime to $n$.
+
+2. \textbf{Analysis of Numbers from 1 to pq}:
+    Let's analyze the structure of numbers from 1 to $pq$:
+    \begin{itemize}
+        \item Total numbers: $pq$
+        \item Numbers divisible by $p$: $q$ numbers ($p, 2p, ..., qp$)
+        \item Numbers divisible by $q$: $p$ numbers ($q, 2q, ..., pq$)
+        \item Numbers divisible by both $p$ and $q$: 1 number ($pq$)
+    \end{itemize}
+
+3. \textbf{Using the Inclusion-Exclusion Principle}:
+    To find $\phi(pq)$, we:
+    \begin{align*}
+        \phi(pq) &= \text{Total numbers } < pq - \text{ Non-coprime numbers} \\
+                    &= (pq-1) - [(q + p - 1) - 1] \\
+                    &= pq - 1 - (p + q - 2) \\
+                    &= pq - p - q + 1 \\
+                    &= (p-1)(q-1)
+    \end{align*}
+
+4. \textbf{Verification}:
+    This result makes intuitive sense because:
+    \begin{itemize}
+        \item The formula is symmetric in $p$ and $q$
+        \item When either $p$ or $q$ increases, $\phi(pq)$ increases
+        \item The result is always positive for primes $p, q > 1$
+    \end{itemize}
+
+Therefore, we have proved that $\phi(pq) = (p-1)(q-1)$ for distinct primes $p$ and $q$. \qed
+
+
+\item[Q4.] 
+{\bf Euler's Theorem:} For any positive integer $a$ and $n$ with $\gcd(a,n)=1$, we have 
+\begin{eqnarray*}
+a^{\phi(n)} \bmod{n} = 1.
+\end{eqnarray*}
+If $n=p$ is prime, we have {\bf Fermat's Theorem}:
+\begin{eqnarray*}
+a^{p-1} \bmod{p} = 1.
+\end{eqnarray*} 
+Prove Euler's theorem above in detail. \hfill (20 marks)
+
+\noindent \textbf{Proof:} Let's prove this theorem step by step.
+
+1. \textbf{Setup and Notations}:
+    Let \(r_1, r_2, \dots, r_{\phi(n)}\) be the complete set of residues coprime to \(n\).
+    By definition, for each \(r_i\):
+    \begin{itemize}
+        \item \(1 \leq r_i \leq n-1\)
+        \item \(\gcd(r_i, n) = 1\)
+    \end{itemize}
+
+2. \textbf{Key Observation}:
+    Consider the set \(S = \{ar_1, ar_2, \dots, ar_{\phi(n)}\}\) where each element is taken modulo \(n\).
+    Since \(\gcd(a,n) = 1\), we can prove that:
+    \begin{itemize}
+        \item Each \(ar_i\) is still coprime to \(n\)
+        \item The elements in \(S\) are all distinct modulo \(n\)
+    \end{itemize}
+
+3. \textbf{Main Argument}:
+    Therefore, \(S\) must be a permutation of the original residue set modulo \(n\). This means:
+    \[
+    \{ar_1, ar_2, \dots, ar_{\phi(n)}\} \equiv \{r_1, r_2, \dots, r_{\phi(n)}\} \pmod{n}
+    \]
+
+4. \textbf{Product Comparison}:
+    Taking the product of both sets:
+    \[
+    (ar_1)(ar_2)\cdots(ar_{\phi(n)}) \equiv r_1r_2\cdots r_{\phi(n)} \pmod{n}
+    \]
+    
+    This can be rewritten as:
+    \[
+    a^{\phi(n)}(r_1r_2\cdots r_{\phi(n)}) \equiv r_1r_2\cdots r_{\phi(n)} \pmod{n}
+    \]
+
+5. \textbf{Final Step}:
+    Since \(\gcd(r_1r_2\cdots r_{\phi(n)}, n) = 1\), we can cancel this product from both sides to obtain:
+    \[
+    a^{\phi(n)} \equiv 1 \pmod{n}
+    \]
+
+\noindent Therefore, we have proved Euler's Theorem. When \(n = p\) is prime, \(\phi(p) = p-1\), which gives us Fermat's Theorem as a special case. \qed
+
+
+
+\item[Q5.] Let $p$ be a prime. A positive integer $\alpha$ is called a \emph{primitive root} of $p$ if ever integer 
+$a$ with $1 \leq a \leq p-1$ can be expressed as 
+$$
+a = \alpha^i \bmod{p} 
+$$ 
+for a unique $i$ with $0 \leq i \leq p-2$. It is known that every prime has at least one primitive root.  
+
+The exponent $i$ is referred to as the \textbf{discrete logarithm}, or \textbf{index}, of $a$ for the base $\alpha$, 
+and is denoted by $\log_\alpha(a)$ or index$(a)$. The \emph{discrete logarithm problem} is to compute the unique 
+exponent $i$ (i.e., $\log_\alpha(a))$, given $p, \alpha$ and $a$. If $p$ is large (say, $p$ has 130 digits), 
+people believe that it is computationally very hard to solve the discrete logarithm problem. 
+
+Prove that 2 is a primitive root of 13. Find out $\log_2(10)$.  \hfill (10 marks) 
+
+Show that it is easy to compute $a$, given $p, \alpha$ and $i$. To this end, you need to describe an efficient algorithm 
+for computing $a$. \hfill (10 marks) 
+
+\subsection*{Part 1: Proving 2 is a Primitive Root of 13 and Finding $\log_2(10)$}
+
+To prove that 2 is a primitive root of 13, we must demonstrate that the powers of 2 modulo 13 generate all integers from 1 to 12. Let's compute successive powers:
+
+\begin{align*}
+2^1 &\equiv 2 \pmod{13} \\
+2^2 &\equiv 4 \pmod{13} \\
+2^3 &\equiv 8 \pmod{13} \\
+2^4 &\equiv 3 \pmod{13} \\
+2^5 &\equiv 6 \pmod{13} \\
+2^6 &\equiv 12 \pmod{13} \\
+2^7 &\equiv 11 \pmod{13} \\
+2^8 &\equiv 9 \pmod{13} \\
+2^9 &\equiv 5 \pmod{13} \\
+2^{10} &\equiv 10 \pmod{13} \\
+2^{11} &\equiv 7 \pmod{13} \\
+2^{12} &\equiv 1 \pmod{13}
+\end{align*}
+
+As these powers generate all integers from 1 to 12 exactly once, 2 is indeed a primitive root of 13.
+
+From these calculations, we can directly observe that $\log_2(10) = 10$ since $2^{10} \equiv 10 \pmod{13}$.
+
+\subsection*{Part 2: Algorithm for Computing $a \equiv \alpha^i \pmod{p}$}
+
+To efficiently compute $a \equiv \alpha^i \pmod{p}$, we employ the \textbf{Square-and-Multiply Algorithm}:
+
+\begin{algorithm}[H]
+\caption{Square-and-Multiply}
+\begin{algorithmic}[1]
+\STATE Input: $\alpha$, $i$, $p$
+\STATE Output: $\alpha^i \bmod p$
+\STATE result $\leftarrow$ 1
+\STATE base $\leftarrow$ $\alpha \bmod p$
+\WHILE{$i > 0$}
+\IF{$i$ is odd}
+\STATE result $\leftarrow$ (result $\times$ base) $\bmod p$
+\ENDIF
+\STATE base $\leftarrow$ (base $\times$ base) $\bmod p$
+\STATE $i \leftarrow \lfloor i/2 \rfloor$
+\ENDWHILE
+\RETURN result
+\end{algorithmic}
+\end{algorithm}
+\textbf{Complexity Analysis:}
+\begin{itemize}
+    \item Time complexity: $O(\log i)$ operations
+    \item Space complexity: $O(1)$ additional space
+\end{itemize}
+
+This algorithm is significantly more efficient than naive repeated multiplication, which would require $O(i)$ operations.
+
+\textbf{Example:} Computing $2^{10} \bmod 13$
+\begin{align*}
+i = 10 &= (1010)_2 \\
+2^1 &\equiv 2 \pmod{13} \\
+2^2 &\equiv 4 \pmod{13} \\
+2^4 &\equiv 3 \pmod{13} \\
+2^8 &\equiv 9 \pmod{13} \\
+2^{10} &\equiv 10 \pmod{13}
+\end{align*}
+
+\textbf{Summary:}
+\begin{itemize}
+    \item 2 is a primitive root of 13
+    \item $\log_2(10) = 10$ in $\mathbb{Z}_{13}$
+    \item The Square-and-Multiply algorithm provides an efficient $O(\log i)$ solution for modular exponentiation
+\end{itemize}
+
+
+\end{description} 
+\end{document}
+
+
+
