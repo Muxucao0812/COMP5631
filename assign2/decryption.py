@@ -118,9 +118,14 @@ while True:
         updated = False
         for cipher_letter, plain_letter in list(mapping.items()):
             if plain_letter == old_plain:
+                old_temp = mapping[cipher_letter]
                 mapping[cipher_letter] = new_plain
                 locked_letters.add(cipher_letter)
+        for cipher_text, plain_text in list(mapping.items()):
+            if mapping[cipher_text] == new_plain and cipher_text not in locked_letters:
+                mapping[cipher_text] = old_temp
                 updated = True
+                
         if updated:
             partial_text = apply_substitution(ciphertext, mapping)
             current_score = score_text(partial_text, common_words)
