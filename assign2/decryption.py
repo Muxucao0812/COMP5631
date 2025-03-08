@@ -141,3 +141,6 @@ filename = "decrypted_text.txt"
 with open(filename, "w") as f:
     f.write(partial_text)
 print(f"Decrypted text saved to {filename}")
+# print mapping method
+print("Final Mapping:", {k: v for k, v in sorted(mapping.items())})
+print("Final Decrypted Text:", partial_text)
