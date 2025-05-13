@@ -1,0 +1,321 @@
+\documentclass[11pt]{article}
+
+\usepackage{graphicx}  
+\usepackage{amsmath}
+\usepackage{amssymb}
+
+\newcommand{\cM}{{\mathcal{M}}} 
+\newcommand{\cC}{{\mathcal{C}}}
+\newcommand{\cK}{{\mathcal{K}}} 
+\newcommand{\bZ}{{\mathbf{Z}}}
+
+\setlength{\topmargin}{0in}
+\setlength{\leftmargin}{0in}
+\setlength{\textwidth}{6.25in}
+\setlength{\textheight}{9in}
+\setlength{\parindent}{0.2in}
+\setlength{\parskip}{.2in}
+\voffset = -.75in
+\hoffset = -.79in
+%\pagestyle{empty}
+\def\floor#1{\left\lfloor #1\right\rfloor} %  floor and ceiling (from math mode)
+\def\ceil#1{\left\lceil #1\right\rceil} 
+
+\def\ang#1{\langle #1\rangle}	%  angle brackets <...>
+
+ 
+\begin{document}
+\newcommand{\lsp}[1]{\large\renewcommand{\baselinestretch}{#1}\normalsize}
+\lsp{1}
+{\sf 
+\begin{center}
+COMP5631: Cryptography and Security \\
+2025 Spring -- Written Assignment Number 4  \\
+Handed out: On April 30 \\ 
+Due on May 18 by 23:50 (please submit your solution paper to Canvas)  \\ 
+Please write your name and student ID on your solution paper 
+\end{center}
+}
+
+\thispagestyle{empty} \pagestyle{empty}
+
+
+\begin{description}
+
+\item[Q1.] 
+Consider the Digital Signature Standard covered in Lecture 14 and answer the following questions. 
+\begin{itemize}
+\item After receiving $m||s||r$ from Alice,  Bob had successfully verified the signature (i.e., 
+the signature verification was successful). 
+Today Bob has found a weak collision $m'$ of $m$, i.e., $h(m)=h(m')$.  Is $s||r$ the signature of $m'$ by Alice? 
+Justify your answer.  
+\hfill \fbox{10 marks}
+\textbf{Answer:} Yes, $s||r$ is the signature of $m'$ by Alice. The proof is as follows:
+
+\vspace{0.2cm}
+\noindent \textbf{Step 1: Understanding the DSS Verification Algorithm}
+
+The DSS verification algorithm includes the following steps (modulo q):
+\begin{enumerate}
+    \item $w = s^{-1} \bmod q$
+    \item $u_1 = (h(m) \cdot w) \bmod q$, $u_2 = (r \cdot w) \bmod q$
+    \item $v = ((g^{u_1} \cdot y^{u_2}) \bmod p) \bmod q$
+    \item The signature is valid if and only if $v = r$
+\end{enumerate}
+
+\vspace{0.2cm}
+\noindent \textbf{Step 2: Analyzing the Signature Equation}
+
+The signature $s$ satisfies the equation:
+\begin{align}
+s &\equiv k^{-1} \cdot (h(m) + xr) \bmod q
+\end{align}
+
+This can be transformed to obtain the value of $k$:
+\begin{align}
+k &\equiv s^{-1} \cdot (h(m) + xr) \bmod q
+\end{align}
+
+\vspace{0.2cm}
+\noindent \textbf{Step 3: Verifying the Signature for the Original Message}
+
+During verification, we calculate:
+\begin{align}
+g^{u_1} \cdot y^{u_2} &\equiv g^{h(m) \cdot w} \cdot y^{r \cdot w} \bmod p\\
+&\equiv g^{h(m) \cdot w} \cdot g^{x \cdot r \cdot w} \bmod p\\
+&\equiv g^{(h(m) + xr) \cdot w} \bmod p\\
+&\equiv g^{(h(m) + xr) \cdot s^{-1}} \bmod p\\
+&\equiv g^k \bmod p
+\end{align}
+
+Since $r \equiv g^k \bmod p \bmod q$, we have $v = r$, and the verification succeeds.
+
+\vspace{0.2cm}
+\noindent \textbf{Step 4: Verifying the Signature for the Collision Message}
+
+For the weak collision $m'$ where $h(m) = h(m')$, substituting into the verification algorithm:
+\begin{align}
+g^{u_1} \cdot y^{u_2} &\equiv g^{h(m') \cdot w} \cdot y^{r \cdot w} \bmod p\\
+&\equiv g^{h(m') \cdot w} \cdot g^{x \cdot r \cdot w} \bmod p\\
+&\equiv g^{(h(m') + xr) \cdot w} \bmod p
+\end{align}
+
+Since $h(m) = h(m')$, this is equivalent to the original verification process:
+\begin{align}
+g^{(h(m') + xr) \cdot w} &\equiv g^{(h(m) + xr) \cdot w} \bmod p\\
+&\equiv g^k \bmod p
+\end{align}
+
+Therefore, we still have $r \equiv g^k \bmod p \bmod q$, so $v = r$, and the verification succeeds.
+
+\vspace{0.2cm}
+\noindent \textbf{Conclusion:} Since $h(m) = h(m')$, the verification process depends on the hash value rather than the message itself. Therefore, the same signature $s||r$ is also valid for the collision message $m'$. This demonstrates that DSS signatures are vulnerable to hash collisions.
+
+
+\item Should the underlying hash function $h$ have the weak collision resistance property?  Justify your answer.  \hfill \fbox{10 marks}
+ 
+
+
+\textbf{Answer:} Yes, the underlying hash function $h$ must have the weak collision resistance property. 
+
+\vspace{0.2cm}
+\noindent The weak collision resistance (or second preimage resistance) means that given a message $m$, it should be computationally infeasible to find another message $m' \neq m$ such that $h(m) = h(m')$.
+
+\vspace{0.2cm}
+\noindent As demonstrated in the previous part, if an adversary finds a weak collision $m'$ for a message $m$ that has been signed by Alice (with signature $s||r$), then the same signature will also verify correctly for $m'$. This is because the verification process depends only on the hash value $h(m)$, not on $m$ itself.
+
+\vspace{0.2cm}
+\noindent Without weak collision resistance, the following attack becomes possible:
+\begin{enumerate}
+    \item Alice signs a benign document $m$ with signature $s||r$
+    \item An adversary finds $m'$ such that $h(m') = h(m)$, where $m'$ contains malicious content
+    \item The adversary can claim that Alice signed $m'$, since signature verification will succeed
+    \item Alice cannot prove she never signed $m'$, which violates the non-repudiation property
+\end{enumerate}
+
+\vspace{0.2cm}
+\noindent This attack directly undermines the fundamental security goal of digital signatures, which is to provide unforgeable evidence of the signer's consent to the specific document content. Therefore, weak collision resistance is essential for the security of DSS.
+
+
+\end{itemize}
+
+
+\item[Q2.]
+Consider the format of transmitted messages in PGP from A to B on Slide No. 24 of Lecture 16, where all the security services (signer nonrepudiation, data origin authentication, data integrity and data confidentiality) are required. 
+Suppose that the digital envelop $E_{k_e^{(B)}}(k_s)$ was replaced by an adversary during transmission.  
+Can this replacement be detected by the PGP package in B's computer? Justify your answer briefly.  \hfill \fbox{10 marks}
+
+
+\textbf{Answer:}
+    Yes, the replacement of the digital envelope $E_{k_e^{(B)}}(k_s)$ can be detected by the PGP package in B's computer.
+    
+    \textbf{Justification:}
+    When the digital envelope $E_{k_e^{(B)}}(k_s)$ is replaced with $E_{k_e^{(B)}}(k_s')$ by an adversary, the following detection mechanism occurs:
+    
+    \begin{enumerate}
+        \item B uses private key $k_d^{(B)}$ to decrypt the tampered digital envelope, obtaining an incorrect session key $k_s'$ instead of the original $k_s$.
+        
+        \item B attempts to decrypt the message body $E_{k_s}(M)$ using the incorrect session key $k_s'$, resulting in garbage data rather than the original message $M$.
+        
+        \item During signature verification, B decrypts $E_{k_d^{(A)}}(H(M))$ using A's public key $k_e^{(A)}$ to obtain the hash $H(M)$ of the original message.
+        
+        \item B computes the hash of the decrypted garbage data and compares it with $H(M)$.
+        
+        \item Since these hash values will not match, the signature verification fails, alerting B to the tampering.
+    \end{enumerate}
+    
+    This demonstrates that the integrity and authentication services provided by the digital signature effectively detect the envelope replacement attack, even though the confidentiality service has been compromised.
+
+
+
+
+\item[Q3.] 
+Consider the Kerberos Authentication Protocol described in Lecture 17 
+and answer the following questions:   
+\begin{enumerate} 
+\item How does the Client C authenticate the sender after the Client receives the message in Step 2 from the AS?  \hfill \fbox{8 marks} 
+
+\item How does the Client C check the integrity of the received message in Step 2 from the AS? \hfill \fbox{7 marks} 
+
+\item How does the TGS check if the $\mbox{Ticket}_{tgs}$ was indeed issued by the AS or not?   \hfill \fbox{7 marks} 
+
+
+\item In addition to the TGS and the AS, who else can verify the validity of the ticket $\mbox{Ticket}_{tgs}$? 
+Justify your answer briefly.  \hfill \fbox{8 marks} 
+
+\end{enumerate}  
+
+\textbf{Answer:}
+    \item 
+    \begin{enumerate}
+    \item The client C authenticates the sender (AS) after receiving the message in Step 2 through the following mechanism:
+    \begin{itemize}
+        \item In Step 2, the client receives $E_{K_c}(K_{c,tgs}, TGS, time, lifetime)$ from the AS
+        \item $K_c$ is a key derived from the client's password, known only to the client and the AS
+        \item The client attempts to decrypt this message using $K_c$
+        \item If decryption succeeds and yields meaningful data (session key $K_{c,tgs}$ and expected parameters), then the client confirms that the message was encrypted by an entity knowing $K_c$ (i.e., the AS)
+        \item Only the legitimate AS could have encrypted the message with the correct $K_c$, thus authenticating the AS as the sender
+    \end{itemize}
+    
+    \item The client C checks the integrity of the received message in Step 2 through:
+    \begin{itemize}
+        \item Successful decryption of $E_{K_c}(K_{c,tgs}, TGS, time, lifetime)$ using $K_c$, which verifies that the message has not been tampered with during transmission
+        \item Verification that the decrypted contents contain expected and consistent information:
+            \begin{itemize}
+                \item TGS identifier matches the requested TGS
+                \item The timestamp is recent (within acceptable skew)
+                \item The lifetime parameters are reasonable
+            \end{itemize}
+        \item Any modification to the encrypted message would result in decryption failure or inconsistent content, indicating integrity violation
+    \end{itemize}
+    
+    \item The TGS checks if the $\mbox{Ticket}_{tgs}$ was indeed issued by the AS through:
+    \begin{itemize}
+        \item The $\mbox{Ticket}_{tgs} = E_{K_{tgs}}(C, TGS, time, lifetime, K_{c,tgs})$ is encrypted using $K_{tgs}$
+        \item $K_{tgs}$ is a secret key shared only between the AS and TGS
+        \item The TGS attempts to decrypt the ticket using $K_{tgs}$
+        \item Successful decryption proves the ticket was encrypted by an entity knowing $K_{tgs}$ (i.e., the AS)
+        \item The TGS also verifies the decrypted contents (TGS identifier, timestamp validity) to fully authenticate that the AS issued the ticket
+    \end{itemize}
+    
+    \item No entity other than the AS and TGS can verify the validity of the ticket $\mbox{Ticket}_{tgs}$.
+    
+    \textbf{Justification:}
+    \begin{itemize}
+        \item The $\mbox{Ticket}_{tgs}$ is encrypted with $K_{tgs}$, a secret key shared exclusively between the AS and TGS
+        \item Verification requires decryption of the ticket, which is only possible with knowledge of $K_{tgs}$
+        \item Even the client C who possesses the ticket cannot decrypt or verify its contents
+        \item In the standard Kerberos protocol, no other system components have access to $K_{tgs}$
+        \item This design ensures that the ticket's validation remains strictly controlled, enhancing the security of the authentication process
+    \end{itemize}
+    \end{enumerate}
+
+
+\item[Q4.] 
+Explain why SSL needs an alert protocol, while IPSec does not need such a protocol?   \hfill \fbox{20 marks} 
+
+
+\textbf{Answer:}
+    SSL/TLS includes a dedicated Alert Protocol while IPSec does not require such a mechanism due to fundamental differences in their design philosophies, operational layers, and usage contexts:
+    
+    \textbf{Reasons why SSL needs an Alert Protocol:}
+    \begin{itemize}
+        \item \textbf{Application Layer Operation:} SSL/TLS functions at the application layer (between TCP and application protocols) and needs to provide detailed error information to applications for appropriate handling and user feedback.
+        
+        \item \textbf{Connection-Oriented Nature:} SSL/TLS establishes and maintains stateful connections that require proper termination signals. The Alert Protocol allows for graceful connection closure through messages like \texttt{close\_notify}.
+        
+        \item \textbf{Session Management:} SSL/TLS creates sessions with specific parameters that must be maintained. The Alert Protocol provides notifications when session parameters are violated or compromised.
+        
+        \item \textbf{Interactive Applications:} SSL/TLS commonly secures interactive applications (web browsers, email clients) where real-time error reporting is essential for user experience.
+        
+        \item \textbf{Granular Error Reporting:} Different types of errors require different responses. The Alert Protocol provides specific error codes (certificate expired, bad record MAC, etc.) enabling targeted remediation.
+        
+        \item \textbf{Handshake Complexity:} SSL/TLS has a complex multi-step handshake process where failures at different stages require specific handling.
+    \end{itemize}
+    
+    \textbf{Reasons why IPSec does not need an Alert Protocol:}
+    \begin{itemize}
+        \item \textbf{Network Layer Operation:} IPSec functions at the network layer, operating transparently to applications. Error handling can be delegated to existing network protocols like ICMP.
+        
+        \item \textbf{Connectionless Design:} IPSec can operate in a connectionless manner, protecting individual packets without maintaining continuous session state.
+        
+        \item \textbf{Administrative Configuration:} IPSec is typically configured by system administrators rather than end-users, making extensive real-time alerts less necessary.
+        
+        \item \textbf{Reliance on IKE:} Internet Key Exchange (IKE) protocol, which establishes security associations for IPSec, includes its own notification mechanisms for key exchange errors.
+        
+        \item \textbf{Implicit Error Handling:} Failed IPSec packets are simply dropped or rejected, with errors handled implicitly by existing IP protocols through timeouts and retransmissions.
+        
+        \item \textbf{Transport Independence:} IPSec is designed to protect IP traffic regardless of the transport protocol, making it impractical to implement a universal alert system.
+    \end{itemize}
+    
+    In summary, SSL's Alert Protocol exists because its application-layer, connection-oriented nature requires explicit error communication, while IPSec's network-layer, packet-oriented approach can rely on existing network protocols for error handling.
+
+\item[Q5.] 
+I use everyday the SSH in my laptop to access my Unix account. 
+The client authentication is password-based. Assume that I used the SSH 
+in my laptop to connect my Unix account two times yesterday and sent the 
+Unix command ``ls -a'' from my laptop to the Unix server two times in the 
+two separated SSH connections. Was the command ``ls -a'' encrypted using 
+the same set of security parameters by the SSH in my laptop? Justify your 
+answer briefly.   \hfill \fbox{20 marks}
+
+
+
+\textbf{Answer:}
+    No, the command ``ls -a'' was not encrypted using the same set of security parameters in the two separate SSH connections. This is because:
+    
+    \textbf{Key Security Parameters in SSH:}
+    \begin{itemize}
+        \item Each SSH connection establishes a new and independent secure channel with its own unique cryptographic parameters
+        
+        \item During each connection's handshake phase, the following unique elements are generated:
+          \begin{itemize}
+            \item Session keys: Unique symmetric encryption keys generated using Diffie-Hellman key exchange
+            \item Initialization vectors (IVs): Randomly generated for each connection
+            \item Message Authentication Code (MAC) keys: Unique for each session
+            \item Sequence numbers: Started fresh with each connection
+          \end{itemize}
+          
+        \item SSH implements \textit{perfect forward secrecy} through ephemeral key exchange, ensuring each session uses unique cryptographic parameters
+        
+        \item The SSH protocol deliberately avoids reusing security parameters across different connections to prevent various cryptographic attacks:
+          \begin{itemize}
+            \item Replay attacks: Prevented by unique session parameters and sequence counters
+            \item Traffic analysis: Complicated by different encryptions of identical commands
+            \item Known-plaintext attacks: Mitigated by different encryption parameters for identical data
+          \end{itemize}
+          
+        \item Even though the command (``ls -a'') and authentication method (password-based) were identical in both connections, the underlying cryptographic parameters were completely different
+          
+        \item SSH client and server negotiate fresh parameters during each connection's setup phase, regardless of how recently a previous connection was established
+    \end{itemize}
+    
+    Therefore, despite being the same command, ``ls -a'' would have been encrypted with entirely different security parameters in each of the two separate SSH sessions.
+
+
+
+\end{description}
+
+\end{document}
+
+
